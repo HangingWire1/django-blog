@@ -1,5 +1,6 @@
 from django.contrib import admin
-from blogs.models import Category, Blog
+from blogs.models import Category, Blog, AboutUs, FollowUs
+
 
 class BlogAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
@@ -9,6 +10,16 @@ class BlogAdmin(admin.ModelAdmin):
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("category_name","pk",)
+
+class AboutUsAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        count = AboutUs.objects.all().count()
+        if count == 0:
+            return True
+        return False
+
 # Register your models here.
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Blog, BlogAdmin)
+admin.site.register(AboutUs, AboutUsAdmin)
+admin.site.register(FollowUs)
