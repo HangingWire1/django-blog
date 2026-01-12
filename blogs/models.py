@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 
 # Category
 class Category(models.Model):
@@ -32,6 +33,17 @@ class Blog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        # 1. Save the first time to get the ID if it doesn't exist
+        if not self.pk:
+            super().save(*args, **kwargs)
+
+        # 2. Generate the slug using the ID
+        self.slug = f"{slugify(self.title)}-{self.pk}"
+
+        # 3. Save the final version with the slug
+        super().save(*args, **kwargs)
+        
     def __str__(self):
         return self.title
 
@@ -60,3 +72,13 @@ class FollowUs(models.Model):
 
     def __str__(self):
         return self.name
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    comment = models.TextField(max_length=250)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.comment
